@@ -1,5 +1,5 @@
 ---
-title: "FRISS Shiny Javascript tutorials"
+title: "Shiny Javascript Tutorials"
 author: "Herman Sontrop"
 date: "`r Sys.Date()`"
 output: 
@@ -16,13 +16,15 @@ vignette: >
 
 ## Overview
 
-[Shiny](http://shiny.rstudio.com/) is a web application framework that makes it easy to build interactive web applications (apps) straight from R. A key aspect of Shiny is that users can create powerful apps driven by R without having to know HTML, CSS, or JavaScript.
+[Shiny](http://shiny.rstudio.com/) is a web application framework that makes it easy to build interactive web applications (apps) straight from R. A key feature of shiny is that users can create powerful apps driven by R without having to know HTML, CSS, or JavaScript.
 
 
-More recently, however, we see a shift from base R graphics to interactive JavaScript web components and visualizations. Examples of these are [plotly](https://plot.ly/) and [C3.js](http://c3js.org/), which are based on [d3.js](https://d3js.org/). Other examples are interactive maps based on [leaflet](http://leafletjs.com/) or network visualizations based on [vis.js](http://visjs.org/). In order to use the functionality offered in these frameworks we have to construct R bindings to JavaScript libraries. 
+More recently, however, we see a shift from base R graphics to interactive JavaScript web components and visualizations. In order to use the functionality offered in these frameworks we have to construct R bindings to JavaScript libraries. 
 
 
-The [htmlwidgets](http://www.htmlwidgets.org/) package provides a framework for creating R bindings to JavaScript libraries and allow you to bring the best of JavaScript into R using a set of easy-to-follow conventions...
+The [htmlwidgets](http://www.htmlwidgets.org/) package provides a framework for creating such bindings and allow you to bring the best of JavaScript into R using a set of easy-to-follow conventions. After a widget has been constructed, embedding it into a shiny app or R Markdown document only takes a few lines of code. For some examples on what htmlwidgets can do take a lot at the [showcase](http://www.htmlwidgets.org/showcase_leaflet.html) on the main website.
 
+
+Even though using an htmlwidget is easy, constructing one may be challenging as you have to have knowledge on a number of things. These include things as building an R package, knowing javascript, css and html.   
 
 
