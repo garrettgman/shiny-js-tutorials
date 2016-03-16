@@ -14,7 +14,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-## Overview
+## Introduction
 
 [Shiny](http://shiny.rstudio.com/) is a web application framework that makes it easy to build interactive web applications (apps) straight from R. A key feature of shiny is that users can create powerful apps driven by R without having to know HTML, CSS, or JavaScript.
 
@@ -25,6 +25,21 @@ More recently, however, we see a shift from base R graphics to interactive JavaS
 The [htmlwidgets](http://www.htmlwidgets.org/) package provides a framework for creating such bindings and allow you to bring the best of JavaScript into R using a set of easy-to-follow conventions. After a widget has been constructed, embedding it into a shiny app or R Markdown document only takes a few lines of code. For some examples on what htmlwidgets can do take a lot at the [showcase](http://www.htmlwidgets.org/showcase_leaflet.html) on the main website.
 
 
-Even though using an htmlwidget is easy, constructing one may be challenging as you have to have knowledge on a number of things. These include things as building an R package, knowing javascript, css and html.   
+Even though using an htmlwidget is easy, constructing one may be challenging at first as you have to have knowledge on a number of concepts in order to create a widget. These include things as building an R package, basic knowledge of javascript, css and html. However, you don't need to be an expert in these techniques. 
 
+In order to master the technique of creating htmlwidgets we will construct an interactive dashboard application which includes a variety of htmlwidgets. Each widget is described in detail. We will gradually build up complexity in the functionality the widgets offer. In addition, you will learn how to create an interactive help system for your apps and how to create a custom input binding. 
+
+The end result of the tutorials can be seen [here](https://frissdemo.shinyapps.io/FrissDashboardModule2/).
+
+
+<iframe width='100%' height='300' src='http://jsfiddle.net/FrissAnalytics/01tv8ojm/embedded/result,js,html' allowfullscreen='allowfullscreen' frameborder='0'></iframe>
+
+The following code load a new dataset into the gauge:
+
+```javascript
+chart.load({
+  columns: newData
+});
+
+```
 
