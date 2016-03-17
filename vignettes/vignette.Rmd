@@ -1,6 +1,8 @@
 ---
 title: "Shiny Javascript Tutorials"
-author: "Herman Sontrop"
+author: 
+- "Herman Sontrop"
+- "Erwin Schuijtvlot"
 date: "`r Sys.Date()`"
 output: 
   html_document:
@@ -16,30 +18,139 @@ vignette: >
 
 ## Introduction
 
-[Shiny](http://shiny.rstudio.com/) is a web application framework that makes it easy to build interactive web applications (apps) straight from R. A key feature of shiny is that users can create powerful apps driven by R without having to know HTML, CSS, or JavaScript.
+<a href="http://shiny.rstudio.com/" target="_blank">Shiny</a> is a web application framework that makes it easy to build interactive web applications (apps) straight from R. A key feature of shiny is that users can create powerful apps driven by R without having to know HTML, CSS, or JavaScript.
 
 
 More recently, however, we see a shift from base R graphics to interactive JavaScript web components and visualizations. In order to use the functionality offered in these frameworks we have to construct R bindings to JavaScript libraries. 
 
 
-The [htmlwidgets](http://www.htmlwidgets.org/) package provides a framework for creating such bindings and allow you to bring the best of JavaScript into R using a set of easy-to-follow conventions. After a widget has been constructed, embedding it into a shiny app or R Markdown document only takes a few lines of code. For some examples on what htmlwidgets can do take a lot at the [showcase](http://www.htmlwidgets.org/showcase_leaflet.html) on the main website.
+The <a href="http://www.htmlwidgets.org/" target="_blank">htmlwidgets</a> on the main website.package provides a framework for creating such bindings and allow you to bring the best of JavaScript into R using a set of easy-to-follow conventions. After a widget has been constructed, embedding it into a shiny app or R Markdown document only takes a few lines of code. For some examples on what htmlwidgets can do take a lot at the  <a href="http://www.htmlwidgets.org/showcase_leaflet.html" target="_blank">showcase</a> on the main website.
 
 
 Even though using an htmlwidget is easy, constructing one may be challenging at first as you have to have knowledge on a number of concepts in order to create a widget. These include things as building an R package, basic knowledge of javascript, css and html. However, you don't need to be an expert in these techniques. 
 
 In order to master the technique of creating htmlwidgets we will construct an interactive dashboard application which includes a variety of htmlwidgets. Each widget is described in detail. We will gradually build up complexity in the functionality the widgets offer. In addition, you will learn how to create an interactive help system for your apps and how to create a custom input binding. 
 
-The end result of the tutorials can be seen [here](https://frissdemo.shinyapps.io/FrissDashboardModule2/).
+The end result of the tutorials can be seen <a href="https://frissdemo.shinyapps.io/FrissDashboardModuleDemo/" target="_blank">here</a>
+
+## First steps
 
 
-<iframe width='100%' height='300' src='http://jsfiddle.net/FrissAnalytics/01tv8ojm/embedded/result,js,html' allowfullscreen='allowfullscreen' frameborder='0'></iframe>
+The data visualisation components we are going to use to build the dashboard are part of the <a href="http://c3js.org/" target="_blank">C3.js</a> library which is built on the more extensive javascript data visualisation library <a href="https://d3js.org/" target="_blank">D3.js</a>. This library provides a variety of plots, charts and visuals to present data.
 
-The following code load a new dataset into the gauge:
+We will start the tutorial with the most simple visualisation: the gauge. Before involving R and Shiny we will make a simple stand alone javascript HTML version to show how the component and C3.js in general works.
 
-```javascript
-chart.load({
-  columns: newData
-});
+To present the stand alone examples we use <a href="https://jsfiddle.net//" target="_blank">jsfiddle</a> which is a webpage where you can interactive run HTML and javascript code.
 
+In the example below we show how to make a basic c3.js gauge. By clicking "Edit in JSFiddle" you can alter the code and see what the effect is.
+For example by changeing the value 75 in 99 on line 4 of the javascript panel and clicking on the "Run" button in the left cornor you will see the value of the gauge change.
+
+<iframe width='100%' height='300' src='http://jsfiddle.net/FrissAnalytics/01tv8ojm/6/embedded/result,js,html' allowfullscreen='allowfullscreen' frameborder='0'></iframe>
+
+The typical recipe for creating a javascript component is creating an HTML div tag and suplying it with a unique id. A div tag is simply a tag which defines a section or division in an HTML page. In the javascript code this div is then targeted by using its id after wich the component is bound to the div.
+
+In the example above you can see we create a div with the id "chart". This is the only HTML code we use.
+
+```html
+<div id="chart1"></div>
 ```
 
+In the javascript code we target this div on line 4.
+
+```javascript
+bindto: '#chart1'
+```
+
+All c3.js components are initialized by calling the c3.generate function. This function takes one object as its argument which supplies C3 with all information it requires to generate the component.
+
+The first element of this object is "bindto" which tells the chart which tag on the HTML page to use to put the component into. The value of this element is a string containing a <a href="http://www.w3schools.com/cssref/css_selectors.asp" target="_blank">CSS selector</a>.
+
+The # symbol we use is CSS syntax used to select an element form an HTML page with a specific id. 
+
+On line 1 we defined the data we want to provide to the visual and assigned it to variable called guageData.
+
+```javascript
+var gaugeData = {data: 75};	
+```
+
+The data is provided as a key value pair with the name data and value 75. Naming the data is not required for the gauge but when we extend the visual later on the data needs to be named.
+
+Next we provide the component with this data from line 5 till 8.
+
+```javascript
+data: {
+  json: gaugeData,,
+  type: 'gauge',
+},
+```
+
+C3 has three different ways of providing components with data: row based, column based or as a json. Json is a javascript standard to define objects and R has convient ways of converting R data to json notation. Providing the chart with data in json format makes it easier later when we will make the shiny binding.
+
+From line 9 till 12 we provide the type of the chart which in this case is "gauge".
+
+We then supply the component with some gauge specific options which are the minimum and maximum of the gauge.
+
+```javascript
+gauge: {
+  min: 0,
+  max: 100
+}
+```
+
+## Extending the gauge
+
+A key part of any widget is the posibility to update the data that is displayed in the visual. Before we will do this from shiny we will extend our first example with updating the data from javascript.
+
+<iframe width='100%' height='300' src='http://jsfiddle.net/FrissAnalytics/tx38gstp/5/embedded/result,js,html' allowfullscreen='allowfullscreen' frameborder='0'></iframe>
+
+The data part of chart remains as in the first version but we extended the gauge specific options with a number of settings. We provided the gauge with a label argument which has a format function that renders the text thats displayed in the middle of the gauge. By default the gauge will display the value as a percentage between the maximum and minumum but for the binding we want the value to be the value as we supply it.
+
+```javascript
+label:{
+				//returning here the value and not the ratio
+				format: function(value, ratio){ return value;}
+      }
+```
+
+The format function has two arguments: the value and the ratio which is the ratio between the set minimum and maximum. Because we simply want to display the value we return it without altering it in anyway.
+
+We also added some styling options to change the width of the gauge and the text displayed below the value.
+
+```javascript
+			width: 5,
+			units: 'value' //this is only the text for the label
+```
+
+To update the gauge we use the standard javascript function  <a href='http://www.w3schools.com/jsref/met_win_setinterval.asp' target='_blank'>setInterval</a> This function executes a function periodically at a set interval.
+
+```javascript
+	setInterval(function () {
+		
+		// create a random value between 0 and 100, rounded to 2 digits
+		var newValue = Math.floor(100 * Math.random());
+		
+		// create a data array holding the random value
+		var newData = { 'data': newValue };
+		
+	// tell the chart to load the new data
+		chart.load({
+		  json: newData
+		});
+    }, 2000);
+```
+
+The first argument for this function is the function to execute and the second argument is the time interval in milliseconds at which the function executes.
+
+We supply the first function as a so called anonymous function which means we directly write the function definition without assinging it a name.
+On line 28 we generate a random number and on 31 we put this value in a json object similarly to how we defined the initial data on line 1. It is important that the new data has the same name as the initial data which in this case is 'data'. By doing this c3 knows that the old data must be updated. If for example you change the string 'data' on line 31 to 'data2' you will see that the old value will remain in the gauge and the new data is drawn on top of it.
+
+Subsequently we will load the new data in the gauage from line 34 till 36.
+
+```javascript
+		chart.load({
+		  json: newData
+		});
+```
+
+You can see we reference the chart object created on line 5 and call the load command to tell the chart object we want to load new data.
+We now have all ingredients to make a fully functional gauge and are ready to make a an html widget for it so it can interact with R.
