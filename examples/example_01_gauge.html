@@ -9,17 +9,18 @@
 <script src="d3.v3.min.js" charset="utf-8"></script>
 <script src="c3.min.js"></script>
 <script>
-
-	var chart1 = c3.generate({
-		bindto: '#chart1',
-		data: {
-			columns: [['data', 75.0]],
-			type: 'gauge',
-		},
-		gauge: {
-			min: 50,
-			max: 100
-		}
+var gaugeData = {data: 75};	
+  
+  var chart1 = c3.generate({
+	  bindto: '#chart1',
+	  data: {
+	    json: gaugeData,
+	    type: 'gauge',
+	  },
+	  gauge: {
+	    min: 0,
+	    max: 100
+	  }
 	});
 </script>
 </body>
