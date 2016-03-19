@@ -334,4 +334,55 @@ library(C3Gauge)
 C3Gauge("hello, world")
 ```
 
+The scaffoldWidget widget function created a number of files and directories for us. Firstly an "htmlwidgets" directory is created within the "inst" directory of our C3Gauge package. The "inst" folder is a generic R package folder where all external package dependencies are stored. We use this whenever we want to include files in our package.
+
+Within the "inst" folder an "htmlwidget" subfolder is created. Here we wil find the following files:
+
+  -C3Gauge.js: This file contains the client side code of our binding. In our case this will be the javascript code described in the above examples extended with some extra logic to handle data comming from R.
+  -C3Gauge.yaml: This file lists all dependecies and their location in the folder structure for the widget. Because we only used bower to get our external dependencie this file is already properly filled.
+  
+Within this folder we find the lib folder which contains the files external javascript library files for c3.js and d3.js as automatically downloaded from bower.
+
+In the main folder of our project we find an 'R' folder with the file "C3Gauge.R" which contains a template function 'C3Gauge' which has data and sizing information as arguments, propagates this information to the right javascript code and then displays the widget.
+
+Besides this function an output and a render function is created which we can use to integrate our widget in a Shiny app.
+
+Lets take a closer look at the C3Gauge.js code.
+
+```javascript
+HTMLWidgets.widget({
+
+  name: 'C3Gauge',
+
+  type: 'output',
+
+  factory: function(el, width, height) {
+
+    // TODO: define shared variables for this instance
+
+    return {
+
+      renderValue: function(x) {
+
+        // TODO: code to render the widget, e.g.
+        el.innerText = x.message;
+
+      },
+
+      resize: function(width, height) {
+
+        // TODO: code to re-render the widget with a new size
+
+      }
+
+    };
+  }
+});
+```
+
+We see a call to the HTMLWidgets.widget function which has three arguments: a name, the type of widget (curently only output is supported) and a factory method which returns two functions; "renderValue" which will contain the code the setup our widget and "resize" which will take care of any resizing code if needed.
+A factory method is the name of general software design pattern where we use a function to create component instances.
+
+Above we see that the factory method as three arguments: el, width and height. el is the element created by htmlwdigets where we can put our widget in. By default htmlwidgets creates an empty div just like we did in the standalone examples above. If you want to create a widget wich requires a different tag or more elaborate HTML code it is possible to create custom HTML which is described <a href="http://www.htmlwidgets.org/develop_advanced.html#custom-widget-html" target="_blank">here</a>
+
 

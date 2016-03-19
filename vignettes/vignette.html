@@ -11,7 +11,7 @@
 <meta name="author" content="Herman Sontrop" />
 <meta name="author" content="Erwin Schuijtvlot" />
 
-<meta name="date" content="2016-03-18" />
+<meta name="date" content="2016-03-19" />
 
 <title>Shiny JavaScript Tutorials</title>
 
@@ -77,7 +77,7 @@ img {
 <h1 class="title">Shiny JavaScript Tutorials</h1>
 <h4 class="author"><em>Herman Sontrop</em></h4>
 <h4 class="author"><em>Erwin Schuijtvlot</em></h4>
-<h4 class="date"><em>2016-03-18</em></h4>
+<h4 class="date"><em>2016-03-19</em></h4>
 </div>
 
 <div id="TOC">
@@ -318,10 +318,47 @@ an example of a custom input binding in the form of a toggle switch
 <span class="kw">setwd</span>(<span class="st">&quot;C3Gauge&quot;</span>)                                          <span class="co"># navigate to package dir</span>
 htmlwidgets::<span class="kw">scaffoldWidget</span>(<span class="st">&quot;C3Gauge&quot;</span>,<span class="st">&quot;c3&quot;</span>,<span class="dt">edit=</span><span class="ot">FALSE</span>)    <span class="co"># create widget scaffolding</span>
 devtools::<span class="kw">install</span>()                                       <span class="co"># install package so we can test it</span></code></pre>
-<p>The scaffoldWidget function is the function which craetes the actual template. With the first argument we specify the name we want our widget to have. The second optional argument is the name of a javascript package on <a href="http://bower.io/" target="_blank">bower</a> we want to use. Bower is a web component manager which you can use to install a component and all its dependencies. When you run the above command you can see c3.js and its dependencies d3.js are downloaded and put in the package folder we just created. You can find them in the folder C3Gauge/inst/htmlwidgets/lib. The lib folder is the default location for all the external libraries you will use in your widget. We set edit to FALSE because for now we do not want to open an editor to edit our files.</p>
+<p>The scaffoldWidget function is the function which creates the actual template. With the first argument we specify the name we want our widget to have. The second optional argument is the name of a javascript package on <a href="http://bower.io/" target="_blank">bower</a> we want to use. Bower is a web component manager which you can use to install a component and all its dependencies. When you run the above command you can see c3.js and its dependencies d3.js are downloaded and put in the package folder we just created. You can find them in the folder C3Gauge/inst/htmlwidgets/lib. The lib folder is the default location for all the external libraries you will use in your widget. We set edit to FALSE because for now we do not want to open an editor to edit our files.</p>
 <p>To check if everything works we install our newly created package and with the next snippet you load the package we just created and run the template code which should display a simple “hello world!” message in the viewer pange in RStudio.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(C3Gauge)
 <span class="kw">C3Gauge</span>(<span class="st">&quot;hello, world&quot;</span>)</code></pre>
+<p>The scaffoldWidget widget function created a number of files and directories for us. Firstly an “htmlwidgets” directory is created within the “inst” directory of our C3Gauge package. The “inst” folder is a generic R package folder where all external package dependencies are stored. We use this whenever we want to include files in our package.</p>
+<p>Within the “inst” folder an “htmlwidget” subfolder is created. Here we wil find the following files:</p>
+<p>-C3Gauge.js: This file contains the client side code of our binding. In our case this will be the javascript code described in the above examples extended with some extra logic to handle data comming from R. -C3Gauge.yaml: This file lists all dependecies and their location in the folder structure for the widget. Because we only used bower to get our external dependencie this file is already properly filled.</p>
+<p>Within this folder we find the lib folder which contains the files external javascript library files for c3.js and d3.js as automatically downloaded from bower.</p>
+<p>In the main folder of our project we find an ‘R’ folder with the file “C3Gauge.R” which contains a template function ‘C3Gauge’ which has data and sizing information as arguments, propagates this information to the right javascript code and then displays the widget.</p>
+<p>Besides this function an output and a render function is created which we can use to integrate our widget in a Shiny app.</p>
+<p>Lets take a closer look at the C3Gauge.js code.</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript"><span class="ot">HTMLWidgets</span>.<span class="fu">widget</span>({
+
+  <span class="dt">name</span>: <span class="st">'C3Gauge'</span>,
+
+  <span class="dt">type</span>: <span class="st">'output'</span>,
+
+  <span class="dt">factory</span>: <span class="kw">function</span>(el, width, height) {
+
+    <span class="co">// TODO: define shared variables for this instance</span>
+
+    <span class="kw">return</span> {
+
+      <span class="dt">renderValue</span>: <span class="kw">function</span>(x) {
+
+        <span class="co">// TODO: code to render the widget, e.g.</span>
+        <span class="ot">el</span>.<span class="fu">innerText</span> = <span class="ot">x</span>.<span class="fu">message</span>;
+
+      },
+
+      <span class="dt">resize</span>: <span class="kw">function</span>(width, height) {
+
+        <span class="co">// TODO: code to re-render the widget with a new size</span>
+
+      }
+
+    };
+  }
+});</code></pre>
+<p>We see a call to the HTMLWidgets.widget function which has three arguments: a name, the type of widget (curently only output is supported) and a factory method which returns two functions; “renderValue” which will contain the code the setup our widget and “resize” which will take care of any resizing code if needed. A factory method is the name of general software design pattern where we use a function to create component instances.</p>
+<p>Above we see that the factory method as three arguments: el, width and height. el is the element created by htmlwdigets where we can put our widget in. By default htmlwidgets creates an empty div just like we did in the standalone examples above. If you want to create a widget wich requires a different tag or more elaborate HTML code it is possible to create custom HTML which is described <a href="http://www.htmlwidgets.org/develop_advanced.html#custom-widget-html" target="_blank">here</a></p>
 </div>
 
 
