@@ -11,7 +11,7 @@
 <meta name="author" content="Herman Sontrop" />
 <meta name="author" content="Erwin Schuijtvlot" />
 
-<meta name="date" content="2016-03-19" />
+<meta name="date" content="2016-03-20" />
 
 <title>Shiny JavaScript Tutorials</title>
 
@@ -77,7 +77,7 @@ img {
 <h1 class="title">Shiny JavaScript Tutorials</h1>
 <h4 class="author"><em>Herman Sontrop</em></h4>
 <h4 class="author"><em>Erwin Schuijtvlot</em></h4>
-<h4 class="date"><em>2016-03-19</em></h4>
+<h4 class="date"><em>2016-03-20</em></h4>
 </div>
 
 <div id="TOC">
@@ -359,6 +359,72 @@ devtools::<span class="kw">install</span>()                                     
 });</code></pre>
 <p>We see a call to the HTMLWidgets.widget function which has three arguments: a name, the type of widget (curently only output is supported) and a factory method which returns two functions; “renderValue” which will contain the code the setup our widget and “resize” which will take care of any resizing code if needed. A factory method is the name of general software design pattern where we use a function to create component instances.</p>
 <p>Above we see that the factory method as three arguments: el, width and height. el is the element created by htmlwdigets where we can put our widget in. By default htmlwidgets creates an empty div just like we did in the standalone examples above. If you want to create a widget wich requires a different tag or more elaborate HTML code it is possible to create custom HTML which is described <a href="http://www.htmlwidgets.org/develop_advanced.html#custom-widget-html" target="_blank">here</a></p>
+<p>As a first step can copy the code from our example in the above javascript template without using any data passed on from R.</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript">      renderValue: <span class="kw">function</span>(x) {
+
+        <span class="kw">var</span> gaugeData = {<span class="st">'data'</span>: <span class="fl">80.0</span>}
+  
+        <span class="co">// create a chart and set options</span>
+        <span class="co">// note that via the c3.js API we bind the chart to the element with id equal to chart1</span>
+        <span class="kw">var</span> chart = <span class="ot">c3</span>.<span class="fu">generate</span>({
+            <span class="dt">bindto</span>: el,
+            <span class="dt">data</span>: {
+                <span class="dt">json</span>: gaugeData,
+                <span class="dt">type</span>: <span class="st">'gauge'</span>,
+            },
+            <span class="dt">gauge</span>: {
+                <span class="dt">label</span>:{
+                    <span class="co">//returning here the value and not the ratio</span>
+                    <span class="dt">format</span>: <span class="kw">function</span>(value, ratio){ <span class="kw">return</span> value;}
+                },
+                <span class="dt">min</span>: <span class="dv">0</span>,
+                <span class="dt">max</span>: <span class="dv">100</span>,
+                <span class="dt">width</span>: <span class="dv">15</span>,
+                <span class="dt">units</span>: <span class="st">'value'</span> <span class="co">//this is only the text for the label</span>
+            }
+        });
+              
+      },</code></pre>
+<p>If we reinstall our package, reload the library and execute the C3Gauge function we can see the example is rendered in R.</p>
+<pre class="sourceCode r"><code class="sourceCode r">devtools::<span class="kw">install</span>()                                      
+<span class="kw">library</span>(C3Gauge)
+<span class="kw">C3Gauge</span>(<span class="st">&quot;&quot;</span>)</code></pre>
+<p>Lets now take a look at the R code to see what we must do in order to render the gauge with a value specified in R.</p>
+<pre class="sourceCode r"><code class="sourceCode r">C3Gauge &lt;-<span class="st"> </span>function(message, <span class="dt">width =</span> <span class="ot">NULL</span>, <span class="dt">height =</span> <span class="ot">NULL</span>) {
+  
+  <span class="co"># forward options using x</span>
+  x =<span class="st"> </span><span class="kw">list</span>(
+    <span class="dt">message =</span> message
+  )
+  
+  <span class="co"># create widget</span>
+  htmlwidgets::<span class="kw">createWidget</span>(
+    <span class="dt">name =</span> <span class="st">'C3Gauge'</span>,
+    x,
+    <span class="dt">width =</span> width,
+    <span class="dt">height =</span> height,
+    <span class="dt">package =</span> <span class="st">'C3Gauge'</span>
+  )
+}</code></pre>
+<p>The function is by default created with three arguments: message, width and height. We can extend the number of arguments whenever we need to pass on additional information to our widget. In the default code the message argument is any data that is passed on to the renderValue function in the C3Gauge.js code. The widht and height information is passed on to the resize function in the same file. For now we will focus on the data part and deal with the resizing later.</p>
+<p>The body of the function consists of two parts, first a list called x is created which will contain all data passed on to the widget. Next the htmlwidgets::createWidget function is called with a name, our data, the sizing information and the name of package our widget is in. Based on the name and the package the function knows which javascript files to use.</p>
+<p>If we look back at how we initialzed our data in the stand alone examples we can see the gauge wants the data to be in the folowing format in javascript:</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript">{<span class="st">'data'</span>: <span class="fl">80.0</span>}</code></pre>
+<p>By default htmlwidgets uses the jsonlite package to convert data from R to Json format. We can experiment with how our data will look in javascript by calling the jsonlite::toJSON() function with various values. If look at the javascript code above we see we need a json object with an element called data with a numeric value. If we make a named list in R with one element called data and a numeric value we will get exactly this output. We can run the code snippet below to verify this.</p>
+<pre class="sourceCode r"><code class="sourceCode r">  x &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">data=</span><span class="dv">80</span>)
+  jsonlite::<span class="kw">toJSON</span>(x)</code></pre>
+<p>This results in</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript">{<span class="st">&quot;data&quot;</span>:[<span class="dv">80</span>]} </code></pre>
+<p>The added brackets simply mean data has become a one dimensional array which is equivalent to a single value.</p>
+<p>In order to get the data to in the form above we only have to rename the message to data and we will get the proper Json object we want.</p>
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="co"># forward options using x</span>
+  x =<span class="st"> </span><span class="kw">list</span>(
+    <span class="dt">data =</span> message
+  )</code></pre>
+<p>Going back to our javascript code we have to make one modification: in stead of passing our static gaugeData to the C3 generate function we pass on our list created in R. We change the line where our data is specified to the folowing.</p>
+<pre class="sourceCode javascript"><code class="sourceCode javascript">    json: x</code></pre>
+<p>After rebuilding and installing the package we now have a fully function gauge we can call from R with the folowing line.</p>
+<pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">C3Gauge</span>(<span class="dv">50</span>)</code></pre>
 </div>
 
 
