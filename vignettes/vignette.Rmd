@@ -6,12 +6,12 @@ author:
 date: "`r Sys.Date()`"
 output: 
   html_document:
+    css: bootstrap-switch.min.css
     highlight: kate
     mathjax: null
     theme: flatly
     toc: yes
     toc_depth: 4
-    css: bootstrap-switch.min.css
 vignette: >
   %\VignetteIndexEntry{Introduction}
   %\VignetteEncoding{UTF-8}
@@ -39,7 +39,10 @@ The tutorials below are intended for the intermediate shiny enthusiast with limi
 
 ### Creating a dashboard app
 
-In order to master the technique of creating widgets we will construct an interactive dashboard application which includes a variety of htmlwidgets. A screenshot of the end result can be seen below. A live version of this dashboard can be seen <a href="https://frissdemo.shinyapps.io/FrissDashboardModuleDemo/" target="_blank">here</a>, while all the code can be found [here](https://github.com/FrissAnalytics/shiny-js-tutorials).   
+The widgets we are going to build are all based on <a href="http://c3js.org/" target="\_blank">c3.js</a>, which in turn is built on the more extensive JavaScript visualization library <a href="https://d3js.org/" target="\_blank">d3.js</a>. C3.js provides a variety of chart types e.g. gauges, pie charts, stacked bar charts, stacked area charts as well as charts to display time series. Furthermore, c3.js provides a variety of [APIs](http://c3js.org/examples.html) and callbacks to access and update the state of a chart after it's rendered.
+
+
+In order to master the technique of creating widgets we will construct an interactive dashboard application which includes a variety of htmlwidgets based on c3.js. A screenshot of the end result can be seen below. A live version of this dashboard can be seen <a href="https://frissdemo.shinyapps.io/FrissDashboardModuleDemo/" target="_blank">here</a>, while all the code can be found [here](https://github.com/FrissAnalytics/shiny-js-tutorials).   
 
 <p style = "margin:25px">
   <img src = "dashboard.png" width="100%"></img >
@@ -47,7 +50,7 @@ In order to master the technique of creating widgets we will construct an intera
 </p>
 
 <p>
-The creation of each widget in the dashboard is described in detail. During the course of the tutorials we gradually build up complexity in the functionality the widgets offer. The end result is a fully functional dashboard application with a nice brush-able timeline component. 
+During the course of the tutorials we gradually build up complexity in the functionality the widgets offer. The end result is a fully functional dashboard. An advantage of using JavaScript over base R graphics is that we have access to various types of [events](http://www.w3schools.com/js/js_events.asp) e.g. hover, click and drag events. For instance, the dashboard has a nice brush-able timeline component. 
 </p>
 
 <p style = "margin:25px">
@@ -56,12 +59,12 @@ The creation of each widget in the dashboard is described in detail. During the 
 </p>
 
 <p>
-The timeline acts as a time based filter for all the data in the other charts. As all the charts are JavaScript components, each will have interactive tooltips and can send click and hover event data to shiny. In the tutorials we take a deep look into the notion of sending data from the client to the server and back using shiny. This functionality is mainly based around three pivotal functions i.e. the JavaScript functions `Shiny.onInputChange`, `Shiny.addCustomMessageHandler` and the R Shiny function `sendCustomMessage`. Each of these will be discussed in detail. A great introduction on these functions is offered in [this](https://ryouready.wordpress.com/2013/11/20/sending-data-from-client-to-server-and-back-using-shiny/) blog post. 
+The timeline acts as a time based filter for all the data in the other charts. In the tutorials we take a deeper look into the notion of sending data from the client to the server and back using shiny. This functionality is mainly based around three pivotal functions i.e. the JavaScript functions `Shiny.onInputChange`, `Shiny.addCustomMessageHandler` and the R Shiny function `sendCustomMessage`. Each of these will be discussed in detail. A great introduction on these functions is offered in [this](https://ryouready.wordpress.com/2013/11/20/sending-data-from-client-to-server-and-back-using-shiny/) blog post. 
 </p>
 
 ### Creating a dynamic help system
 
-In addition to creating widgets, you'll learn how to create an interactive, dynamic help system, complete with animated transitions. The help system is based on another JavaScript library called <a href="http://introjs.com/" target="\_blank">Intro.js</a>. This library allows you to create a step-by-step guide for a website. It will draw a nice box around elements of your choice, combined with an annotation layer and a navigation system. Here's an example of how the help will look for one of the gauges in the Dashboard. 
+In addition to creating widgets, you'll learn how to create an interactive, dynamic help system, complete with animated transitions. The help system is based on another JavaScript library i.e. <a href="http://introjs.com/" target="\_blank">intro.js</a>. This library allows you to create a step-by-step guide for a website. It will draw a nice box around elements of your choice, combined with an annotation layer and a navigation system. Here's an example of how the help will look for one of the gauges in the dashboard. 
 
 <p style = "margin:25px">
   <img src = "help.png" width="100%"></img >
@@ -70,7 +73,7 @@ In addition to creating widgets, you'll learn how to create an interactive, dyna
 
 ### Creating your own input binding
 
-Finally, we end the tutorials with the creation of a custom [input binding](http://shiny.rstudio.com/articles/building-inputs.html). Input bindings are components that capture events from the client i.e. the webpage, and send it to Shiny. A simple example of an input binding is an [action button](http://shiny.rstudio.com/reference/shiny/latest/actionButton.html). It captures a click event from the user and sends it to shiny. Here we'll create a nice looking toggle switch, based on the [bootstrap-switch](http://www.bootstrap-switch.org/examples.html) JavaScript library. We'll use the switch to toggle a c3.js stacked area chart to display either absolute counts or percentages. Here's an example of the switch we will be creating.
+We end the tutorials with the creation of a custom [input binding](http://shiny.rstudio.com/articles/building-inputs.html). Input bindings are components that capture events from the client i.e. the webpage, and send it to Shiny. A simple example of an input binding is an [action button](http://shiny.rstudio.com/reference/shiny/latest/actionButton.html). It captures a click event from the user and sends it to shiny. Here we'll create a nice looking toggle switch, based on the [bootstrap-switch](http://www.bootstrap-switch.org/examples.html) JavaScript library. We'll use the switch to toggle a c3.js stacked area chart to display either absolute counts or percentages. Here's an example of the switch we will be creating. Press the button and see what happens!
 
 <script src="bootstrap-switch.min.js"></script> 
 
@@ -87,18 +90,34 @@ Finally, we end the tutorials with the creation of a custom [input binding](http
 </p>
 
 
-## First steps
+## Stand alone examples
+
+We will start with the most simple visualization c3.js offers i.e. a gauge. Before involving R and shiny we will make a simple stand alone JavaScript HTML version to show how the component and c3.js work in general.
 
 
-The widgets we are going to build are all part of the <a href="http://c3js.org/" target="\_blank">c3.js</a> library, which in turn is built on the more extensive JavaScript data visualization library <a href="https://d3js.org/" target="\_blank">d3.js</a>. The c3.js library provides a variety of chart types, such as gauges, pie charts, stacked bar charts, stacked area charts and charts to display time series data. In addition, c3.js provides a variety of [APIs](http://c3js.org/examples.html) and callbacks to access and update the state of the chart after it's rendered. We will start with the most simple visualization c3.js offers i.e. a simple gauge. Before involving R and shiny we will make a simple stand alone JavaScript HTML version to show how the component and c3.js work in general.
+Each stand alone example is presented in a <a href="https://jsfiddle.net//" target="_blank">jsfiddle</a>, which is a webpage where you can interactively run HTML, CSS and JavaScript code. By clicking "Edit in JSFiddle" in the panel below you can alter the code and see what the effect of your change is. Working with fiddles is a great way to learn how a specific library or piece of code works. For example, by changing the value 75 on the first line of the JavaScript panel and clicking on the "Run" button in the left corner you will see the value of the gauge change.
 
-Each stand alone example is presented in a <a href="https://jsfiddle.net//" target="_blank">jsfiddle</a>, which is a webpage where you can interactively run HTML, CSS and JavaScript code. By clicking "Edit in JSFiddle" you can alter the code and see what the effect of your change is. Working with fiddles is a great way to learn how a specific library or piece of code works. For example, by changing the value 75 on line 4 of the JavaScript panel and clicking on the "Run" button in the left corner you will see the value of the gauge change.
 
 <iframe width='100%' height='300' src='http://jsfiddle.net/FrissAnalytics/01tv8ojm/6/embedded/result,js,html' allowfullscreen='allowfullscreen' frameborder='0'></iframe>
 
-The typical recipe for creating a JavaScript component is creating an HTML div tag and supplying it with a unique id. A div tag is simply a tag which defines a section or division in an HTML page. In the JavaScript code this div is then targeted by using its id after which the component is bound to the div.
 
-Here is the code for the complete example.
+## Receipe to construct charts
+
+Typical steps to generate a chart are to
+
+1. include library specific css and javascript files
+2. create a container element in which we can house the chart
+3. make sure we have data in the right format to feed to the chart
+4. render the chart in the container using library specific instructions
+
+optionally,
+
+5. send updates to the chart e.g. update its data or update parameters that alter the appearance of the chart
+
+
+## A first example
+
+Here is the complete code for our first example. This code corresponds to [example_01_gauge.html](https://raw.githubusercontent.com/FrissAnalytics/shiny-js-tutorials/master/examples/example_01_gauge.html) in the examples folder of [this](https://github.com/FrissAnalytics/shiny-js-tutorials/tree/master/examples) repository.
 
 ```html
 <html>
@@ -115,64 +134,111 @@ Here is the code for the complete example.
 <script>
 var gaugeData = {data: 75};	
   
-  var chart1 = c3.generate({
-	  bindto: '#chart1',
-	  data: {
-	    json: gaugeData,
-	    type: 'gauge',
-	  },
-	  gauge: {
-	    min: 0,
-	    max: 100
-	  }
-	});
+var chart1 = c3.generate({
+  bindto: '#chart1',
+  data: {
+    json: gaugeData,
+    type: 'gauge',
+  },
+  gauge: {
+    min: 0,
+    max: 100
+  }
+});
 </script>
 
 </body>
 </html>
 ```
 
-This code corresponds to "example_01_gauge.html" in the examples folder of this repository.
-In the example above you can see we create a div with the id "chart". This is the only HTML code we use.
+Let's break down this code into the steps stated in the previous sections.
+
+
+### step 1
+
+In our example we include one css file and two JavaScript files. This happens at lines 3, 9 and 10, respectively. The [css](http://www.w3schools.com/css/) file describes how to style elements on the screen, while the JavaScript files implement the logic to render and update the charts. Here the exact position where we include these files in the code is not important, however, it may affect how fast a page can be rendered, depending on the size of the includes. 
+
+
+
+### step 2
+
+Creating a container element is very easy. Almost always it can be a simple [div](http://www.w3schools.com/tags/tag_div.asp). The div tag defines a division or a section in an HTML document. In our case it looks like this
 
 ```html
 <div id="chart1"></div>
 ```
 
-In the JavaScript code we target this div on line 4.
+Here we have given the div an id. The value of this id is unique and helps us to locate the element later on. In general, it greatly helps to have a basic understanding of HTML [elements](http://www.w3schools.com/html/html_elements.asp) and [css selectors](http://www.w3schools.com/cssref/css_selectors.asp) such as [ids](http://www.w3schools.com/cssref/sel_id.asp) and [classes](http://www.w3schools.com/cssref/sel_class.asp). Luckily, a basic understanding is often all you need and not hard to obtain. W3Schools offers a great set of quick, easy to understand tutorials in [HTML](http://www.w3schools.com/html/default.asp), [CSS](http://www.w3schools.com/css/default.asp) and [JavaScript](http://www.w3schools.com/js/default.asp). Take a look as these will really help you obtain a basic understanding of these frameworks, which is crucial if you want to develop your own components and bindings. 
 
-```javascript
-bindto: '#chart1'
-```
+The most important part here is this:
 
-All c3.js components are initialized by calling the c3.generate function. This function takes one object as its argument which supplies c3 with all information it requires to generate the component.
+> We want to be able to create elements on a page and to target them in order to be able to call a function on them, which will alter the state and content in that element. 
 
-The first element of this object is "bindto" which tells the chart which tag on the HTML page to use to put the component into. The value of this element is a string containing a <a href="http://www.w3schools.com/cssref/css_selectors.asp" target="_blank">CSS selector</a>.
 
-The # symbol we use is CSS syntax used to select an element form an HTML page with a specific id. 
+### step 3
 
-On line 1 we defined the data we want to provide to the visual and assigned it to variable called guageData.
+
+Step 3 is often the most difficult step. Besides data collection, cleaning and organizing e.g. using [dplyr](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html) and [tidyr](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html), we must send data from shiny to the web browser. R, however, works with dataframes, vectors and lists, while JavaScript works with things like [objects](http://www.w3schools.com/js/js_objects.asp) and [arrays](http://www.w3schools.com/js/js_arrays.asp) and often uses [JSON](http://www.w3schools.com/js/js_json.asp) to describe data. 
+
+
+In the end, whatever we use in R must be translated into something the browser understands. Unfortunately, each chart library has its own conventions on how to data should be represented. As a widget builder it is your task to the translation from R to JavaScript.   
+
+In the example above the JavaScript data looks like this
 
 ```javascript
 var gaugeData = {data: 75};	
 ```
 
-The data is provided as a key value pair with the name data and value 75. Naming the data is not required for the gauge but when we extend the visual later on the data needs to be named.
+Here we have created a variable called `gaugeData`. In JavaScript this would be an example of an object, which has a key / value pair with a *key* called data and a *value* of 75. 
 
-Next we provide the component with this data from line 5 till 8.
+
+When we are in R and want to set the value of the gauge to be 75, we must make sure the final data the chart gets looks like this. In this case the data representation we're after is simple. However, in general this often is harder.
+
+
+Internally, shiny uses the R package [jsonlite](https://cran.r-project.org/web/packages/jsonlite/index.html) to convert R data stuctures to JSON. For more information, take a look at the package [vignette](https://cran.r-project.org/web/packages/jsonlite/vignettes/json-aaquickstart.html) for an easy starter. Especially useful are the `fromJSON` and `toJSON` functions. The first tells you how an R object will be translated into JSON, while the latter does the reverse. Just play around to see how it works!
+
+
+For a quick example in R run this
+
+
+``` r
+if (!require("jsonlite"))
+  install.packages("jsonlite")
+  
+library(jsonlite)
+toJSON(list(data = 75)) 
+
+```
+
+### step 4
+
+At this point we have included the css and js scripts, set up a container element with an id equal to `chart1` and have constructed a JSON dataset called `gaugeData`. We are now ready to construct the chart. Note that the code below is very specific for c3.js. Different chart libraries use different conventions. However, learning this example helps to understand other libraries as well. Often they involve the same steps, however, they likely use a different syntax to execute those steps. The important part is that you understand which steps are needed, not specifically what syntax is used. Remember, the chart library already makes it easy to construct the chart, so the syntax to set one up is often easy to master, given some examples. Luckily c3.js has many. For some inspiration, take a look at [these](http://c3js.org/examples.html)
+
+
+All c3.js components are initialized by calling the function `c3.generate`. This function takes one object as its argument which supplies c3 with all information it requires to generate the component.
+
+
+The first element of this object is `bindto` which tells the chart which tag on the HTML page to use to put the component into. The value of this element is a string containing a <a href="http://www.w3schools.com/cssref/css_selectors.asp" target="_blank">CSS selector</a>.
+
+The # symbol is CSS syntax which tells the browser to select an element from the HTML page with the specific id. 
+
+
+As indicated earlier, the data is provided as a key value pair with the name data and value 75. Naming the data is not required for the gauge but when we extend the visual later on the data needs to be named.
+
+
+Next we provide the component with this data
 
 ```javascript
 data: {
-  json: gaugeData,,
+  json: gaugeData,
   type: 'gauge',
 },
 ```
 
-c3 has three different ways of providing components with data: row based, column based or as a json. Json is a javascript standard to define objects and R has convenient ways of converting R data to json notation. Providing the chart with data in json format makes it easier later when we will make the shiny binding.
+c3 has three [different ways of providing components with data](http://c3js.org/examples.html#data): row based, column based or as a JSON. In our examples we typically pick the JSON format as shiny uses jsonlite to convert R data structures to JSON (see above). in addition to passiing the `gaugeData` we also tell c3.js that we want the chart to be of type 'gauge'.
 
-From line 9 till 12 we provide the type of the chart which in this case is "gauge".
 
-We then supply the component with some gauge specific options which are the minimum and maximum of the gauge.
+Finally, we supply the component with some gauge specific options which are the minimum and maximum values of the gauge.
 
 ```javascript
 gauge: {
@@ -183,7 +249,7 @@ gauge: {
 
 ## Extending the gauge
 
-A key part of any widget is the possibility to update the data that is displayed in the visual. Before we will do this from shiny we will extend our first example with updating the data from JavaScript.
+A key part of any widget is the possibility to update the data that is displayed in the visual. Before we will do this from shiny we will extend our first example with updating the data from JavaScript. Here we want to achieve two things. First, we want to pass some more options to the chart. In addition, we want to update the value of the change after the chart is initialized.  
 
 <iframe width='100%' height='300' src='http://jsfiddle.net/FrissAnalytics/tx38gstp/6/embedded/result,js,html' allowfullscreen='allowfullscreen' frameborder='0'></iframe>
 
@@ -257,9 +323,9 @@ The data part of chart remains as in the first version but we extended the gauge
 
 ```javascript
 label:{
-				//returning here the value and not the ratio
-				format: function(value, ratio){ return value;}
-      }
+  //returning here the value and not the ratio
+  format: function(value, ratio){ return value;}
+}
 ```
 
 The format function has two arguments: the value and the ratio which is the ratio between the set minimum and maximum. Because we simply want to display the value we return it without altering it in anyway.
@@ -267,8 +333,8 @@ The format function has two arguments: the value and the ratio which is the rati
 We also added some styling options to change the width of the gauge and the text displayed below the value.
 
 ```javascript
-			width: 5,
-			units: 'value' //this is only the text for the label
+width: 5,
+units: 'value' //this is only the text for the label
 ```
 
 To update the gauge we use the standard javascript function  <a href='http://www.w3schools.com/jsref/met_win_setinterval.asp' target='_blank'>setInterval</a> This function executes a function periodically at a set interval.
