@@ -101,7 +101,7 @@ Each stand alone example is presented in a <a href="https://jsfiddle.net//" targ
 <iframe width='100%' height='300' src='http://jsfiddle.net/FrissAnalytics/01tv8ojm/6/embedded/result,js,html' allowfullscreen='allowfullscreen' frameborder='0'></iframe>
 
 
-## Receipe to construct charts
+## Recipe to construct charts
 
 Typical steps to generate a chart are to
 
@@ -181,7 +181,7 @@ The most important part here is this:
 Step 3 is often the most difficult step. Besides data collection, cleaning and organizing e.g. using [dplyr](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html) and [tidyr](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html), we must send data from shiny to the web browser. R, however, works with dataframes, vectors and lists, while JavaScript works with things like [objects](http://www.w3schools.com/js/js_objects.asp) and [arrays](http://www.w3schools.com/js/js_arrays.asp) and often uses [JSON](http://www.w3schools.com/js/js_json.asp) to describe data. 
 
 
-In the end, whatever we use in R must be translated into something the browser understands. Unfortunately, each chart library has its own conventions on how to data should be represented. As a widget builder it is your task to the translation from R to JavaScript.   
+In the end, whatever we use in R must be translated into something the browser understands. Unfortunately, each chart library has its own conventions on how the data should be represented. As a widget builder it is your task to make the translation from R to JavaScript.   
 
 In the example above the JavaScript data looks like this
 
@@ -192,10 +192,10 @@ var gaugeData = {data: 75};
 Here we have created a variable called `gaugeData`. In JavaScript this would be an example of an object, which has a key / value pair with a *key* called data and a *value* of 75. 
 
 
-When we are in R and want to set the value of the gauge to be 75, we must make sure the final data the chart gets looks like this. In this case the data representation we're after is simple. However, in general this often is harder.
+When we are in R and want to set the value of the gauge to 75, we must make sure the final data the chart gets looks like this. In this case the data representation we're after is simple. However, in general this often is harder.
 
 
-Internally, shiny uses the R package [jsonlite](https://cran.r-project.org/web/packages/jsonlite/index.html) to convert R data stuctures to JSON. For more information, take a look at the package [vignette](https://cran.r-project.org/web/packages/jsonlite/vignettes/json-aaquickstart.html) for an easy starter. Especially useful are the `fromJSON` and `toJSON` functions. The first tells you how an R object will be translated into JSON, while the latter does the reverse. Just play around to see how it works!
+Internally, shiny and htmlwidgets use the R package [jsonlite](https://cran.r-project.org/web/packages/jsonlite/index.html) to convert R data stuctures to JSON. For more information, take a look at the package [vignette](https://cran.r-project.org/web/packages/jsonlite/vignettes/json-aaquickstart.html) for an easy starter. Especially useful are the `fromJSON` and `toJSON` functions. The first tells you how an R object will be translated into JSON, while the latter does the reverse. Just play around to see how it works!
 
 
 For a quick example in R run this
@@ -223,7 +223,7 @@ The first element of this object is `bindto` which tells the chart which tag on 
 The # symbol is CSS syntax which tells the browser to select an element from the HTML page with the specific id. 
 
 
-As indicated earlier, the data is provided as a key value pair with the name data and value 75. Naming the data is not required for the gauge but when we extend the visual later on the data needs to be named.
+As indicated earlier, the data is provided as a key value pair with the name 'data' and value 75. Naming the data is not required for the gauge but when we extend the visual later on the data needs to be named.
 
 
 Next we provide the component with this data
@@ -235,7 +235,7 @@ data: {
 },
 ```
 
-c3 has three [different ways of providing components with data](http://c3js.org/examples.html#data): row based, column based or as a JSON. In our examples we typically pick the JSON format as shiny uses jsonlite to convert R data structures to JSON (see above). in addition to passiing the `gaugeData` we also tell c3.js that we want the chart to be of type 'gauge'.
+c3 has three [different ways of providing components with data](http://c3js.org/examples.html#data): row based, column based or as a JSON. In our examples we typically pick the JSON format as shiny uses jsonlite to convert R data structures to JSON (see above). in addition to passing the data we also tell c3.js that we want the chart to be of type 'gauge'.
 
 
 Finally, we supply the component with some gauge specific options which are the minimum and maximum values of the gauge.
@@ -319,7 +319,7 @@ Here is the code for the complete example.
 
 This code corresponds to "example_02_gauge.html" in the examples folder of this repository.
 
-The data part of chart remains as in the first version but we extended the gauge specific options with a number of settings. We provided the gauge with a label argument which has a format function that renders the text that's displayed in the middle of the gauge. By default the gauge will display the value as a percentage between the maximum and minimum but for the binding we want the value to be the value as we supply it.
+The data part of the chart remains as in the first version but we extended the gauge specific options with a number of settings. We provided the gauge with a label argument which has a format function that renders the text that's displayed in the middle of the gauge. By default the gauge will display the value as a percentage between the maximum and minimum but for the binding we want the value to be the value as we supply it.
 
 ```javascript
 label:{
