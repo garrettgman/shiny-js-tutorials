@@ -31,7 +31,7 @@ Furthermore, in recent years there has been a shift from using base R graphics t
 The <a href="http://www.htmlwidgets.org/" target="\_blank">htmlwidgets</a> package provides a framework for creating such bindings and allows you to bring the best of JavaScript into R using a set of easy-to-follow conventions. After a widget has been constructed, embedding it into a shiny app or R Markdown document only takes a few lines of code. For some examples on what htmlwidgets can do take a look at the  <a href="http://www.htmlwidgets.org/showcase_leaflet.html" target="_blank">showcase</a> on the main website.
 
 
-Eventhough using an htmlwidget is easy, constructing one may be challenging at first as you have to have knowledge on a number of concepts in order to create a widget. These include things as building an R package and having a basic knowledge of javascript, css and html. However, you don't need to be an expert in these techniques to create quite useful new functionality.  
+Even though using an htmlwidget is easy, constructing one may be challenging at first as you have to have knowledge on a number of concepts in order to create a widget. These include things as building an R package and having a basic knowledge of javascript, css and html. However, you don't need to be an expert in these techniques to create quite useful new functionality.  
 
 
 The tutorials below are intended for the intermediate shiny enthusiast with limited experience in html, css and/or javascript, who wants to learn how to extend shiny. A useful first step in this process is to be able to create your own htmlwidgets.
@@ -42,7 +42,7 @@ The tutorials below are intended for the intermediate shiny enthusiast with limi
 The widgets we are going to build are all based on <a href="http://c3js.org/" target="\_blank">c3.js</a>, which in turn is built on the more extensive JavaScript visualization library <a href="https://d3js.org/" target="\_blank">d3.js</a>. C3.js provides a variety of chart types e.g. gauges, pie charts, stacked bar charts, stacked area charts as well as charts to display time series. Furthermore, c3.js provides a variety of [APIs](http://c3js.org/examples.html) and callbacks to access and update the state of a chart after it's rendered.
 
 
-In order to master the technique of creating widgets we will construct an interactive dashboard application which includes a variety of htmlwidgets based on c3.js. A screenshot of the end result can be seen below. A live version of this dashboard can be seen <a href="https://frissdemo.shinyapps.io/FrissDashboardModuleDemo/" target="_blank">here</a>, while all the code can be found [here](https://github.com/FrissAnalytics/shiny-js-tutorials).   
+In order to master the technique of creating widgets we will construct an interactive dashboard application which includes a variety of htmlwidgets based on c3.js. A screenshot of the end result can be seen below. A live version of this dashboard can be seen <a href="https://frissdemo.shinyapps.io/FrissDashboardModule2/" target="_blank">here</a>, while all the code can be found [here](https://github.com/FrissAnalytics/shiny-js-tutorials).   
 
 <p style = "margin:25px">
   <img src = "dashboard.png" width="100%"></img >
@@ -212,33 +212,53 @@ toJSON(list(data = 75))
 
 ### step 4
 
-At this point we have included the css and js scripts, set up a container element with an id equal to `chart1` and have constructed a JSON dataset called `gaugeData`. We are now ready to construct the chart. Note that the code below is very specific for c3.js. Different chart libraries use different conventions. However, learning this example helps to understand other libraries as well. Often they involve the same steps, however, they likely use a different syntax to execute those steps. The important part is that you understand which steps are needed, not specifically what syntax is used. Remember, the chart library already makes it easy to construct the chart, so the syntax to set one up is often easy to master, given some examples. Luckily c3.js has many. For some inspiration, take a look at [these](http://c3js.org/examples.html)
+At this point we have included the required css and js scripts, set up a container element with an id equal to `chart1` and have constructed a JSON dataset called `gaugeData`. We are now ready to construct the chart. 
+
+Unfortunately, different chart libraries use different conventions to set up charts, so the code you see below will be very specific to c3.js. However, learning this example helps to understand other libraries as well. The important part is that you understand which steps are needed, not specifically what syntax is used. Remember, a good chart library already makes it easy to construct a chart and given some examples the syntax is often easy to master. Luckily c3.js comes with many examples, for some inspiration take a look at [these](http://c3js.org/examples.html)!
 
 
-All c3.js components are initialized by calling the function `c3.generate`. This function takes one object as its argument which supplies c3 with all information it requires to generate the component.
+All c3.js components are initialized by calling the function `c3.generate`. This function takes a single object as its argument which supplies c3 with all information it requires to generate the component. In the example above the relevant code chunk looks like this:
 
 
-The first element of this object is `bindto` which tells the chart which tag on the HTML page to use to put the component into. The value of this element is a string containing a <a href="http://www.w3schools.com/cssref/css_selectors.asp" target="_blank">CSS selector</a>.
+```javascript
+var chart1 = c3.generate({
+  bindto: '#chart1',
+  data: {
+    json: gaugeData,
+    type: 'gauge',
+  },
+  gauge: {
+    min: 0,
+    max: 100
+  }
+});
+```
 
-The # symbol is CSS syntax which tells the browser to select an element from the HTML page with the specific id. 
+
+The first item in this object is `bindto` which tells c3 which [element](http://www.w3schools.com/html/html_elements.asp) on the HTML page we want to target to put the component into. Here value is `#chart1`. This string is an example of what's known as a <a href="http://www.w3schools.com/cssref/css_selectors.asp" target="_blank">CSS selector</a>. The # symbol is CSS syntax which tells the browser to select an element from the HTML page with the specific id, which value comes after # symbol. 
 
 
-As indicated earlier, the data is provided as a key value pair with the name 'data' and value 75. Naming the data is not required for the gauge but when we extend the visual later on the data needs to be named.
+Next we pass in the previously constructed javascript variable `gaugeData`, which holds the data for the chart. 
+
+```javascript
+var gaugeData = {data: 75};	
+```
+
+Here the data is provided as a key value pair with the name 'data' and value 75. Naming the data is not required for the gauge but when we extend the visual later on the data needs to be named. In actual widgets the data is usually passed from R to the browser by shiny, which internally relies on the R library [jsonlite](https://cran.r-project.org/web/packages/jsonlite/vignettes/json-aaquickstart.html). In the example above, however, we manually created the data object.
 
 
-Next we provide the component with this data
+In the code chunk below we pass the variable holding the data and in addition tell c3 that we want to construct a chart of type 'gauge'
 
 ```javascript
 data: {
   json: gaugeData,
-  type: 'gauge',
-},
+  type: 'gauge'
+}
 ```
 
-c3 has three [different ways of providing components with data](http://c3js.org/examples.html#data): row based, column based or as a JSON. In our examples we typically pick the JSON format as shiny uses jsonlite to convert R data structures to JSON (see above). in addition to passing the data we also tell c3.js that we want the chart to be of type 'gauge'.
+C3 has different ways of providing components with data (see [here](http://c3js.org/examples.html#data)). In our examples we typically pick the JSON format as shiny uses jsonlite to convert R data structures to JSON (see above). 
 
-
-Finally, we supply the component with some gauge specific options which are the minimum and maximum values of the gauge.
+Finally, we supply the component with some gauge specific options which in this example are the minimum and maximum values of the gauge.
 
 ```javascript
 gauge: {
@@ -249,7 +269,7 @@ gauge: {
 
 ## Extending the gauge
 
-A key part of any widget is the possibility to update the data that is displayed in the visual. Before we will do this from shiny we will extend our first example with updating the data from JavaScript. Here we want to achieve two things. First, we want to pass some more options to the chart. In addition, we want to update the value of the change after the chart is initialized.  
+A key aspect of a good widget is the possibility to update the data *after* we have constructed the chart. Before we do this from shiny, we'll extend our first example by updating the data via JavaScript. First, we want to pass some more options to the chart. Subsequently, we update the value of the gauge, after the chart is initialized.  
 
 <iframe width='100%' height='300' src='http://jsfiddle.net/FrissAnalytics/tx38gstp/6/embedded/result,js,html' allowfullscreen='allowfullscreen' frameborder='0'></iframe>
 
@@ -317,9 +337,9 @@ Here is the code for the complete example.
 </html>
 ```
 
-This code corresponds to "example_02_gauge.html" in the examples folder of this repository.
+This code corresponds to "example_02_gauge.html" in the examples folder of [this](https://github.com/FrissAnalytics/shiny-js-tutorials) repository.
 
-The data part of the chart remains as in the first version but we extended the gauge specific options with a number of settings. We provided the gauge with a label argument which has a format function that renders the text that's displayed in the middle of the gauge. By default the gauge will display the value as a percentage between the maximum and minimum but for the binding we want the value to be the value as we supply it.
+Compared to the first version we changed the gauge display options. For instance, in the initialization object passed to `c3.generate` we set a `label` argument to a format *function* that renders the display text in the middle of the gauge as by default the gauge displays a given value as a percentage related to the maximum and minimum value for that gauge. In our case though we just want to display the value we supply to it. Of note, many of the auxiliary formatting functions used by c3.js actually come from its big brother i.e. [d3.js](https://d3js.org/). Luckily, most of the time we don't need these.
 
 ```javascript
 label:{
@@ -337,7 +357,14 @@ width: 5,
 units: 'value' //this is only the text for the label
 ```
 
-To update the gauge we use the standard javascript function  <a href='http://www.w3schools.com/jsref/met_win_setinterval.asp' target='_blank'>setInterval</a> This function executes a function periodically at a set interval.
+In the example above we wrapped the code to update the value of the gauge into another function, called  <a href='http://www.w3schools.com/jsref/met_win_setinterval.asp' target='_blank'>setInterval</a>. SetInterval is a standard javascript function that repeatedly executes a given function every ms milliseconds.
+
+
+```javascript
+setInterval( functionDefinition , ms );
+``` 
+
+In our case the complete function call looks like this
 
 ```javascript
 setInterval(function () {
@@ -354,13 +381,20 @@ setInterval(function () {
 	});
   }, 2000);
 ```
+Here we supplied the function we want to be executed as a so called [anonymous function](http://www.w3schools.com/js/js_function_definition.asp), which means we directly pass in the function definition without assigning it a name. Another way would be to first create a named function and then to pass the name of that function as a first argument to `setInterval`.
 
-The first argument for this function is the function to execute and the second argument is the time interval in milliseconds at which the function executes.
 
-We supply the first function as a so called anonymous function which means we directly write the function definition without assigning it a name.
-On line 28 we generate a random number and on 31 we put this value in a json object similarly to how we defined the initial data on line 1. It is important that the new data has the same name as the initial data which in this case is 'data'. By doing this c3 knows that the old data must be updated. If for example you change the string 'data' on line 31 to 'data2' you will see that the old value will remain in the gauge and the new data is drawn on top of it.
+Inside the anonymous function we draw a random number and use it to create a new data object, using the same name as before i.e. 'data'.
 
-Subsequently we will load the new data in the gauge from line 34 till 36.
+```javascript
+// create a random value between 0 and 100, rounded to 2 digits
+var newValue = Math.floor(100 * Math.random());
+	
+// create a data array holding the random value
+var newData = { 'data': newValue };
+```
+
+Finally, we tell c3.js to load the new data to the already existing gauge.
 
 ```javascript
 chart.load({
@@ -368,8 +402,10 @@ chart.load({
 });
 ```
 
-You can see we reference the chart object created on line 5 and call the load command to tell the chart object we want to load new data.
-We now have all ingredients to make a fully functional gauge and are ready to make a an html widget for it so it can interact with R.
+Note that here we reference the chart object we created earlier and call the method `load` on it. You can think of [methods](http://www.w3schools.com/js/js_object_methods.asp) as special functions that are part of a javascript object. Typically, methods perform actions on objects e.g. to set or retrieve values. In this example the object is the chart, while the method is called `load`. C3 has many methods depending on the specific chart, for [here](http://c3js.org/reference.html#api-focus) for a complete overview.
+
+
+At this stage we have covered all ingredients to make a fully functional gauge. Time to create a real htmlwidget! 
 
 ## Creating the widget
 
@@ -382,7 +418,7 @@ install.packages("devtools")
 
 Devtools is an R package which contains various utility functions to assist in R package development and in this tutorial we will use some of them.
 
-The htmlwidgets provides an easy to use function to set up a template for your widget. By running the following code snipet in R you will create a new R package containing template code which we can use to build our widget.
+The htmlwidgets provides an easy to use function to set up a template for your widget. By running the following code snippet in R you will create a new R package containing template code which we can use to build our widget.
 
 ```R
 devtools::create("C3Gauge")                               # create package using devtools
@@ -393,7 +429,7 @@ devtools::install()                                       # install package so w
 
 The scaffoldWidget function is the function which creates the actual template. With the first argument we specify the name we want our widget to have. The second optional argument is the name of a javascript package on <a href="http://bower.io/" target="_blank">bower</a> we want to use. Bower is a web component manager which you can use to install a component and all its dependencies. When you run the above command you can see c3.js and its dependencies d3.js are downloaded and put in the package folder we just created. You can find them in the folder C3Gauge/inst/htmlwidgets/lib. The lib folder is the default location for all the external libraries you will use in your widget. We set edit to FALSE because for now we do not want to open an editor to edit our files.
 
-To check if everything works we install our newly created package and with the next snippet you load the package we just created and run the template code which should display a simple "hello world!" message in the viewer pange in RStudio.
+To check if everything works we install our newly created package and with the next snippet you load the package we just created and run the template code which should display a simple "hello world!" message in the viewer pane in RStudio.
 
 ```R
 library(C3Gauge)
@@ -402,10 +438,10 @@ C3Gauge("hello, world")
 
 The scaffoldWidget widget function created a number of files and directories for us. Firstly an "htmlwidgets" directory is created within the "inst" directory of our C3Gauge package. The "inst" folder is a generic R package folder where all external package dependencies are stored. We use this whenever we want to include files in our package.
 
-Within the "inst" folder an "htmlwidget" subfolder is created. Here we wil find the following files:
+Within the "inst" folder an "htmlwidget" subfolder is created. Here you'll find the following files:
 
-  -C3Gauge.js: This file contains the client side code of our binding. In our case this will be the javascript code described in the above examples extended with some extra logic to handle data comming from R.
-  -C3Gauge.yaml: This file lists all dependecies and their location in the folder structure for the widget. Because we only used bower to get our external dependencie this file is already properly filled.
+  -C3Gauge.js: This file contains the client side code of our binding. In our case this will be the javascript code described in the above examples extended with some extra logic to handle data coming from R.
+  -C3Gauge.yaml: This file lists all dependencies and their location in the folder structure for the widget. Because we only used bower to get our external dependency this file is already properly filled.
   
 Within this folder we find the lib folder which contains the files external javascript library files for c3.js and d3.js as automatically downloaded from bower.
 
@@ -446,10 +482,10 @@ HTMLWidgets.widget({
 });
 ```
 
-We see a call to the HTMLWidgets.widget function which has three arguments: a name, the type of widget (curently only output is supported) and a factory method which returns two functions; "renderValue" which will contain the code the setup our widget and "resize" which will take care of any resizing code if needed.
+We see a call to the HTMLWidgets.widget function which has three arguments: a name, the type of widget (currently only output is supported) and a factory method which returns two functions; "renderValue" which will contain the code the setup our widget and "resize" which will take care of any re-sizing code if needed.
 A factory method is the name of general software design pattern where we use a function to create component instances.
 
-Above we see that the factory method as three arguments: el, width and height. el is the element created by htmlwdigets where we can put our widget in. By default htmlwidgets creates an empty div just like we did in the standalone examples above. If you want to create a widget wich requires a different tag or more elaborate HTML code it is possible to create custom HTML which is described <a href="http://www.htmlwidgets.org/develop_advanced.html#custom-widget-html" target="_blank">here</a>
+Above we see that the factory method as three arguments: el, width and height. el is the element created by htmlwidgets where we can put our widget in. By default htmlwidgets creates an empty div just like we did in the standalone examples above. If you want to create a widget winch requires a different tag or more elaborate HTML code it is possible to create custom HTML which is described <a href="http://www.htmlwidgets.org/develop_advanced.html#custom-widget-html" target="_blank">here</a>
 
 As a first step can copy the code from our example in the above javascript template without using any data passed on from R.
 
@@ -481,7 +517,7 @@ As a first step can copy the code from our example in the above javascript templ
       },
 ```
 
-If we reinstall our package, reload the library and execute the C3Gauge function we can see the example is rendered in R.
+If we re-install our package, reload the library and execute the C3Gauge function we can see the example is rendered in R.
 
 ```R
 devtools::install()                                      
@@ -511,18 +547,18 @@ C3Gauge <- function(message, width = NULL, height = NULL) {
 ```
 
 The function is by default created with three arguments: message, width and height. We can extend the number of arguments whenever we need to pass on additional information to our widget.
-In the default code the message argument is any data that is passed on to the renderValue function in the C3Gauge.js code. The widht and height information is passed on to the resize function in the same file. For now we will focus on the data part and deal with the resizing later.
+In the default code the message argument is any data that is passed on to the renderValue function in the C3Gauge.js code. The width and height information is passed on to the resize function in the same file. For now we will focus on the data part and deal with the re-sizing later.
 
 The body of the function consists of two parts, first a list called x is created which will contain all data passed on to the widget. Next the htmlwidgets::createWidget function is called with a name, our data, the sizing information and the name of package our widget is in.
 Based on the name and the package the function knows which javascript files to use.
 
-If we look back at how we initialzed our data in the stand alone examples we can see the gauge wants the data to be in the folowing format in javascript:
+If we look back at how we initialized our data in the stand alone examples we can see the gauge wants the data to be in the flowing format in javascript:
 
 ```javascript
 {'data': 80.0}
 ```
 
-By default htmlwidgets uses the jsonlite package to convert data from R to Json format. We can experiment with how our data will look in javascript by calling the jsonlite::toJSON() function with various values. If look at the javascript code above we see we need a json object with an element called data with a numeric value.
+By default htmlwidgets uses the jsonlite package to convert data from R to JSON format. We can experiment with how our data will look in javascript by calling the jsonlite::toJSON() function with various values. If look at the javascript code above we see we need a json object with an element called data with a numeric value.
 If we make a named list in R with one element called data and a numeric value we will get exactly this output. We can run the code snippet below to verify this.
 
 ```R
@@ -538,7 +574,7 @@ This results in
 
 The added brackets simply mean data has become a one dimensional array which is equivalent to a single value.
 
-In order to get the data to in the form above we only have to rename the message to data and we will get the proper Json object we want.
+In order to get the data to in the form above we only have to rename the message to data and we will get the proper JSON object we want.
 
 ```R
   # forward options using x
@@ -547,13 +583,13 @@ In order to get the data to in the form above we only have to rename the message
   )
 ```
 
-Going back to our javascript code we have to make one modification: in stead of passing our static gaugeData to the C3 generate function we pass on our list created in R. We change the line where our data is specified to the folowing.
+Going back to our javascript code we have to make one modification: in stead of passing our static gaugeData to the C3 generate function we pass on our list created in R. We change the line where our data is specified to the following.
 
 ```javascript
     json: x
 ```
 
-After rebuilding and installing the package we now have a fully function gauge we can call from R with the folowing line.
+After rebuilding and installing the package we now have a fully function gauge we can call from R with the following line.
 
 ```R
   C3Gauge(50)
