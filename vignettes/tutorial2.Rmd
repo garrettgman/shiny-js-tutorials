@@ -123,10 +123,10 @@ All we have to do now is place C3GaugeOutput functions in our ui.R to display ou
               style = "width:75%; margin: auto"))
 ```
 
-The complete code for the resulting app can bee seen <a href=""></a> and a live version of the app can be seen <a href="https://frissdemo.shinyapps.io/GaugeAppNoUpdates/" target="_blank">here</a>.
+The complete code for the resulting app can bee seen <a href="https://github.com/FrissAnalytics/shiny-js-tutorials/tree/master/examples/GaugeApp" target="_blank">here</a> and a live version of the app can be seen <a href="https://frissdemo.shinyapps.io/GaugeAppNoUpdates/" target="_blank">here</a>.
 
 As can be seen the gauges update rather abruptly. This is because in our first version of the gauge widget we do not handle updates properly yet. Whenever our C3Gauge function is called with each update a new gauge is created rather then the old one being updated.
-In general the be able to update the value or values of a widget we need to take the following steps:
+In general to be able to update the value or values of a widget we need to take the following steps:
 
 1. Check if we have an existing reference to the chart. 
 2  If not, create the chart and store a reference to it.
@@ -135,25 +135,25 @@ In general the be able to update the value or values of a widget we need to take
 Storing a reference and checking if it exists is the same for all the widgets. Updating data in a chart is specific for the javascript library we use.
 If we open C3Gauge.js in our C3 packge we created in our previous tutorial and take a look at our factory method we see the argument 'el' which is a reference to the element created by htmlWidgets where our chart will be put in.
 
-```R
+```javascript
 factory: function(el, width, height)
 ```
 
 We can use this element to store a reference to our chart once we created it with the folowing line
 
-```R
+```javascript
 el.chart = chart;
 ```
 
 To check if we have a reference to our chart we can do the following:
 
-```R
+```javascript
 if(el.chart===undefined)
 ```
 
 Putting this all toghether gives us the following pseudo code:
 
-```R
+```javascript
 if(el.chart===undefined){
   var chart = c3.generate({...})
   el.chart = chart
@@ -162,7 +162,7 @@ if(el.chart===undefined){
 }
 ```
 
-In our first tutorial we already updated the chart in this <a href="http://jsfiddle.net/FrissAnalytics/tx38gstp/8/?utm_source=website&utm_medium=embed&utm_campaign=tx38gstp" target="_blank">fiddle</a> The part that updates the gauage is the call to the chart.load function
+In our first tutorial we already updated the chart in this <a href="http://jsfiddle.net/FrissAnalytics/tx38gstp/8/?utm_source=website&utm_medium=embed&utm_campaign=tx38gstp" target="_blank">fiddle</a> The part that updates the gauge is the call to the chart.load function
 
 ```javascript
 		chart.load({
@@ -204,3 +204,5 @@ If we combine all the above to implement the outlined steps the renderValue func
     }
 }
 ```
+
+When we reinstall and reload the package and run our app we can see the gauges updating smoothly as in the live version <a href="https://frissdemo.shinyapps.io/GaugeApp/" target="_blank">here</a>
