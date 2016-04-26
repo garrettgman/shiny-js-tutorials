@@ -271,7 +271,7 @@ gauge: {
 
 A key aspect of a good widget is the possibility to update the data *after* we have constructed the chart. Before we do this from shiny, we'll extend our first example by updating the data via JavaScript. First, we want to pass some more options to the chart. Subsequently, we update the value of the gauge, after the chart is initialized.  
 
-<iframe width='100%' height='300' src='http://jsfiddle.net/FrissAnalytics/tx38gstp/8/embedded/result,js,html' allowfullscreen='allowfullscreen' frameborder='0'></iframe>
+<iframe width='100%' height='300' src='http://jsfiddle.net/FrissAnalytics/tx38gstp/9/embedded/result,js,html' allowfullscreen='allowfullscreen' frameborder='0'></iframe>
 
 Here is the code for the complete example.
 
