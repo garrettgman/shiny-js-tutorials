@@ -421,8 +421,8 @@ Devtools is an R package which contains various utility functions to assist in R
 The htmlwidgets provides an easy to use function to set up a template for your widget. By running the following code snippet in R you will create a new R package containing template code which we can use to build our widget.
 
 ```R
-devtools::create("C3Gauge")                               # create package using devtools
-setwd("C3Gauge")                                          # navigate to package dir
+devtools::create("C3")                                    # create package using devtools
+setwd("C3")                                               # navigate to package dir
 htmlwidgets::scaffoldWidget("C3Gauge","c3",edit=FALSE)    # create widget scaffolding
 devtools::install()                                       # install package so we can test it
 ```
@@ -432,7 +432,7 @@ The scaffoldWidget function is the function which creates the actual template. W
 To check if everything works we install our newly created package and with the next snippet you load the package we just created and run the template code which should display a simple "hello world!" message in the viewer pane in RStudio.
 
 ```R
-library(C3Gauge)
+library(C3)
 C3Gauge("hello, world")
 ```
 
@@ -522,7 +522,7 @@ If we re-install our package, reload the library and execute the C3Gauge functio
 
 ```R
 devtools::install()                                      
-library(C3Gauge)
+library(C3)
 C3Gauge("")
 ```
 
@@ -542,7 +542,7 @@ C3Gauge <- function(message, width = NULL, height = NULL) {
     x,
     width = width,
     height = height,
-    package = 'C3Gauge'
+    package = 'C3'
   )
 }
 ```

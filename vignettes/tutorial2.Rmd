@@ -1,0 +1,126 @@
+---
+title: "Shiny JavaScript Tutorials"
+author: 
+- "Herman Sontrop"
+- "Erwin Schuijtvlot"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    css: bootstrap-switch.min.css
+    highlight: kate
+    mathjax: null
+    theme: flatly
+    toc: yes
+    toc_depth: 4
+vignette: >
+  %\VignetteIndexEntry{Introduction}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+---
+
+## Introduction
+
+In this second part of the tutorial series we will put the gauges we created in the previous part in a Shiny app and extend our gauge such that we can update the value from Shiny. We assume the reader has a basic understanding of creating shiny apps. For the readers who have no experience using shiny we refer to the turotial series on the Rstudio shiny website <a href="http://shiny.rstudio.com/tutorial/" target="_blank">here</a>
+
+## Creating an empty shiny application
+
+We will use R Studio to create a shiny app template. To do so select "New project.." from the file menu, select "new directory" and then "Shiny web application". In the next screen fill in "GaugeApp" as directory name and select a subdirectory where you want the app to be created.
+
+Next we modify the default contents of the files created such that we have an empty skeleton.
+We modify server.R slightly such that we have access to the shiny session object. We will need this later on.
+The code of server.R will look like this:
+
+```R
+library(shiny)
+
+shinyServer(function(input, output, session) {
+
+})
+```
+
+We will next put an empty <a href="http://shiny.rstudio.com/reference/shiny/latest/navbarPage.html" target="_blank">navbar page</a> in ui.R
+
+```R
+library(shiny)
+
+shinyUI(navbarPage(id="main", windowTitle = "Friss", position = "fixed-top", title = NULL,
+                    
+        tabPanel("panel 1", icon = icon("dashboard")
+)))
+```
+
+Notice how both files contain library(shiny) to load the shiny package. This is necessary beacause there is no guarantee which file is loaded first. A solution to this is to create a file global.R. The contents of this file are guaranteed to run before ui.R or server.R are run.
+We can create a file global.R in the same folder as server.R and ui.R and load all packages we need. For now this will be C3 and shiny.
+The contents of this file will look like this:
+
+```R
+library(shiny)
+library(C3)
+```
+
+We can now remove the lines in server.R and ui.R where the shiny package is loaded.
+
+If we remeber the layout of our <a href="https://frissdemo.shinyapps.io/FrissDashboardModule2/" target="_blank">dashboard application</a> we see the gauges are layed out in 4 columns. We create this basic layout by using a <a href="http://shiny.rstudio.com/reference/shiny/latest/fluidPage.html" target="_blank">fluidPage</a> with a fluidRow and four <a href="http://shiny.rstudio.com/reference/shiny/latest/column.html" target="_blank">columns</a>
+
+Our basic skeleton in ui.R will then look like this:
+
+```R
+shinyUI(
+  
+  navbarPage(id="main", windowTitle = "Friss", position = "fixed-top", title = NULL,
+             
+             tabPanel("panel 1", icon = icon("dashboard"),
+                      
+                      h3("Gauge demo"),
+                      
+                      fluidRow(
+                        
+                        column(3,
+                               div( h4("Total", style = "text-align:center"),
+                                    style = "width:75%; margin: auto")),
+                        
+                        column(3,
+                               div( h4("last 90 days", style = "text-align:center"),
+                                    style = "width:75%; margin: auto")),
+                        
+                        column(3,
+                               div( h4("last 30 days", style = "text-align:center"),
+                                    style = "width:75%; margin: auto")),
+                        
+                        column(3,
+                               div( h4("last 6 days", style = "text-align:center"),
+                                    style = "width:75%; margin: auto"))
+                      )
+                      
+             )
+  ))
+```
+
+Inside our columns we create div elements which contain a header for each gauge. Using the style properties of make sure our texts are centered and our div containers have some margin around them. If you run the app we created so far you can see the basic layout forming.
+
+We are now ready to put the actual gauges in our app. When we created our widget the scaffoldWidget function automatically created C3GaugeOutput and renderC3Gauge functions to render our gauge widgets within a shiny application. For a detailed description how reactive render functions work see <a href="http://shiny.rstudio.com/tutorial/lesson4/" target="_blank">lesson 4</a> of the Rstudio shiny tutorial series.
+
+We start by creating the render functions in server.R. To render a gauge we will generate a random number and use this as our value.
+
+```R
+  output$Gauge1 <- renderC3Gauge({
+    invalidateLater(5000, session)
+    val <- round(runif(1,min=0,max=100),2)
+    C3Gauge(message = val)
+  })
+```
+
+The first line inside our render function makes a call to <a href="http://shiny.rstudio.com/reference/shiny/latest/invalidateLater.html" target="_blank">invalidateLater</a>. This call causes the expression inside the render function to be called periodically in a similair fashion as the setInterval javascript function we used in the first tutorial.
+The first argument to invalidateLater is the period in milliseconds we want to use. The second argument is the shiny session object. The session object is required to cancel the scheduled invalidations after the shiny session has been closed.
+We want to create four gauges so we can copy the block above 3 times and simply name our ouput elements Gauge1, Gauge2, Gauge3 and Gauge4. The code inside the render functions remain the same.
+
+All we have to do now is place C3GaugeOutput functions in our ui.R to display our rendered output. To do so we insert a call to C3GaugeOutput in each column like in the snippet below. We do this for Gauge1 till Gauge4.
+
+```R
+  column(3,
+         div( h4("Total", style = "text-align:center"),
+              C3GaugeOutput("Gauge1", height = 150),
+              style = "width:75%; margin: auto"))
+```
+
+
