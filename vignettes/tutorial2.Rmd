@@ -123,4 +123,84 @@ All we have to do now is place C3GaugeOutput functions in our ui.R to display ou
               style = "width:75%; margin: auto"))
 ```
 
+The complete code for the resulting app can bee seen <a href=""></a> and a live version of the app can be seen <a href="https://frissdemo.shinyapps.io/GaugeAppNoUpdates/" target="_blank">here</a>.
 
+As can be seen the gauges update rather abruptly. This is because in our first version of the gauge widget we do not handle updates properly yet. Whenever our C3Gauge function is called with each update a new gauge is created rather then the old one being updated.
+In general the be able to update the value or values of a widget we need to take the following steps:
+
+1. Check if we have an existing reference to the chart. 
+2  If not, create the chart and store a reference to it.
+3. If we have a reference update the existing chart.
+
+Storing a reference and checking if it exists is the same for all the widgets. Updating data in a chart is specific for the javascript library we use.
+If we open C3Gauge.js in our C3 packge we created in our previous tutorial and take a look at our factory method we see the argument 'el' which is a reference to the element created by htmlWidgets where our chart will be put in.
+
+```R
+factory: function(el, width, height)
+```
+
+We can use this element to store a reference to our chart once we created it with the folowing line
+
+```R
+el.chart = chart;
+```
+
+To check if we have a reference to our chart we can do the following:
+
+```R
+if(el.chart===undefined)
+```
+
+Putting this all toghether gives us the following pseudo code:
+
+```R
+if(el.chart===undefined){
+  var chart = c3.generate({...})
+  el.chart = chart
+}else{
+  // Code to update chart
+}
+```
+
+In our first tutorial we already updated the chart in this <a href="http://jsfiddle.net/FrissAnalytics/tx38gstp/8/?utm_source=website&utm_medium=embed&utm_campaign=tx38gstp" target="_blank">fiddle</a> The part that updates the gauage is the call to the chart.load function
+
+```javascript
+		chart.load({
+		  json: newData
+		});
+```
+
+If we combine all the above to implement the outlined steps the renderValue function in C3Gauge.js becomes:
+
+```javascript
+  renderValue: function(x) {
+
+    // Check if we have a reference to our chart
+    if(el.chart===undefined){
+    	// create a chart and set options
+    	// note that via the c3.js API we bind the chart to the element with id equal to chart1
+    	var chart = c3.generate({
+    		bindto: el,
+    		data: {
+    			json: x,
+    			type: 'gauge',
+    		},
+    		gauge: {
+    			label:{
+    				//returning here the value and not the ratio
+    				format: function(value, ratio){ return value;}
+    			},
+    			min: 0,
+    			max: 100,
+    			width: 15,
+    			units: 'value' //this is only the text for the label
+    		}
+    	});
+  
+    	el.chart = chart;
+    }else{
+      // Update the chart if it already exists
+      el.chart.load({json: x});
+    }
+}
+```
