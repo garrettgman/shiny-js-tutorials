@@ -71,6 +71,25 @@ In addition to creating widgets, you'll learn how to create an interactive, dyna
   <div style = "text-align:center">the help system</div>  
 </p>
 
+
+### Dashboard data 
+
+The input data for the dashboard looks like this
+
+```{r echo = FALSE, warning=FALSE, message=FALSE,prompt=FALSE, comment=""}
+load("data.RData")
+library(dplyr)
+dd           <- DD.Signaleringen[,c("signaleringid","detectiedatum","branche","product","proces",
+                                    "label","eindresultaat","eindargumentatie")]
+names(dd)    <- c("id","date","branch","product","proces","label","score","result")
+dd$id        <- 1:nrow(dd)
+rownames(dd) <- NULL
+head(dd)
+```
+
+The data corresponds to a toy insurance company who screens new policy applications at underwriting in order to determine if accepting a new policy is risky. 
+
+
 ### Creating your own input binding
 
 We end the tutorials with the creation of a custom [input binding](http://shiny.rstudio.com/articles/building-inputs.html). Input bindings are components that capture events from the client i.e. the webpage, and send it to Shiny. A simple example of an input binding is an [action button](http://shiny.rstudio.com/reference/shiny/latest/actionButton.html). It captures a click event from the user and sends it to shiny. Here we'll create a nice looking toggle switch, based on the [bootstrap-switch](http://www.bootstrap-switch.org/examples.html) JavaScript library. We'll use the switch to toggle a c3.js stacked area chart to display either absolute counts or percentages. Here's an example of the switch we will be creating. Press the button and see what happens!
